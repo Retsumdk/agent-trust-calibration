@@ -1,5 +1,10 @@
 node_modules/
 dist/
-.env
-*.log
 coverage/
+*.log
+.env
+*.tmp
+*.jsonl.tmp
+*.tgz
+trust-state.json
+trust-audit.jsonl

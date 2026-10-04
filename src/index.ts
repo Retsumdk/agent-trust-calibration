@@ -1,51 +1,37 @@
-#!/usr/bin/env bun
 /**
- * agent-trust-calibration - Dynamic trust calibration based on historical agent performance and drift detection
- * Built by Retsumdk
+ * agent-trust-calibration
+ *
+ * Dynamic trust calibration for autonomous agents: recency-weighted
+ * performance scoring, statistical drift detection, confidence-gated access
+ * policy, and a hash-chained audit ledger. Zero runtime dependencies.
+ *
+ * Built by Retsumdk — MIT licensed.
  */
 
-import { Command } from "commander";
-import { existsSync, readFileSync } from "fs";
-import { join } from "path";
-
-interface Config {
-  apiKey?: string;
-  baseUrl: string;
-  timeout: number;
-  retries: number;
-}
-
-const DEFAULTS: Config = {
-  baseUrl: "https://api.example.com",
-  timeout: 30000,
-  retries: 3,
-};
-
-function loadConfig(): Config {
-  const cfgPath = join(process.cwd(), "config.json");
-  if (existsSync(cfgPath)) {
-    try {
-      return { ...DEFAULTS, ...JSON.parse(readFileSync(cfgPath, "utf-8")) };
-    } catch { /* ignore */ }
-  }
-  return { ...DEFAULTS };
-}
-
-async function main(cfg: Config) {
-  console.log(`[${name}] Connected to ${cfg.baseUrl}`);
-  console.log(`[${name}] Timeout: ${cfg.timeout}ms | Retries: ${cfg.retries}`);
-  // TODO: implement your logic here
-  console.log(`[${name}] Done.`);
-}
-
-const program = new Command();
-program.name("agent-trust-calibration").description("Dynamic trust calibration based on historical agent performance and drift detection").version("1.0.0")
-  .option("-c, --config <path>", "Config file path", "config.json")
-  .option("-v, --verbose", "Verbose mode")
-  .action(async (opts) => {
-    const cfg = loadConfig();
-    if (opts.verbose) console.log("Verbose mode on");
-    try { await main(cfg); }
-    catch (e) { console.error(`Error: ${e}`); process.exit(1); }
-  });
-program.parse(process.argv);
+export { TrustRegistry, DEFAULT_OPTIONS, type RegistrySettings } from "./registry.js";
+export type {
+  AgentProfile,
+  AgentSummary,
+  CalibrationOptions,
+  DecisionKind,
+  DriftReport,
+  DriftState,
+  OutcomeInput,
+  OutcomeKind,
+  OutcomeRecord,
+  PolicyDecision,
+  PolicyThresholds,
+  RegistryState,
+  TrustScore,
+} from "./types.js";
+export { TrustError, CorruptionError, type ErrorCode } from "./errors.js";
+export { computeScore, defaultQuality, CONFIDENCE_HALF_SATURATION } from "./scoring.js";
+export { evaluateDrift } from "./drift.js";
+export { TrustPolicy, DEFAULT_THRESHOLDS, describeDecision } from "./policy.js";
+export { AuditLog, type AuditEntry, type AuditReport } from "./audit.js";
+export { validateCalibration, isOutcomeKind } from "./config.js";
+export { createTrustServer, listenTrustServer, type ServerHandle } from "./server.js";
+export { runDemo } from "./demo.js";
+export { runCli } from "./cli.js";
+export { sha256Hex, constantTimeEqual } from "./hashing.js";
+export { writeJsonAtomic, readJsonFile } from "./persistence.js";
